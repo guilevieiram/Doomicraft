@@ -24,7 +24,7 @@ If you want to compile the game by yourself on your linux machine, go through wi
 
 1. clone the project:
 ```bash
-git clone https://github.com/JpTanaka/Doomicraft
+git clone https://github.com/guilevieiram/Doomicraft
 cd Doomicraft
 ```
 
