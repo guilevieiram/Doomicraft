@@ -128,7 +128,7 @@ bool main_menu(){
 		ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground
 	);
 	ImGui::Text("		 --------------------------");
-	ImGui::Text("		 | Wellcome to DoomiCraft |");
+	ImGui::Text("		 | Welcome to DoomiCraft! |");
 	ImGui::Text("		 --------------------------");
 	ImGui::Text(" ");
 	ImGui::Text("To move: A W S D");
@@ -160,6 +160,10 @@ bool main_menu(){
 	if (ImGui::Button("Exit", {window_size.x, 50})) {
 		exit(0);
 	}
+	// if (ImGui::Button("Testing", {window_size.x/2.0f - 5, 50})) {
+	// 	scene.game_mode = game_modes::kTest;
+	// 	ret = true;
+	// }
 
 	ImGui::SetWindowSize(window_size);
 	ImGui::SetWindowPos({

@@ -69,11 +69,11 @@ float cube::distancexy(cube const& c){
 
 
 
-float cube::top(){
+float cube::top() const{
     return position.z + Length/2.0f;
 }
 
-float cube::bottom(){
+float cube::bottom() const{
     return position.z - Length/2.0f;
 }
 
@@ -83,4 +83,12 @@ bool cube::operator==(const cube& other) const {
         other.position.y == position.y &&
         other.position.z == position.z
     );
+}
+
+void cube::draw_wire(environment_structure& env) const {
+    mesh_drawable c;
+    c.initialize_data_on_gpu(
+        mesh_primitive_cube(position)
+    );
+    draw_wireframe(c, env, {1, 0, 0});
 }

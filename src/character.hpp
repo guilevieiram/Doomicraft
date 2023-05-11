@@ -9,7 +9,7 @@ class character {
 
 
 public:
-    float jump_velocity = 7;
+    float jump_velocity = 6.5f;
     cube body;
     cube legs;
 
@@ -25,4 +25,5 @@ public:
     float top();
 
     vec3 get_eyes();
+    vec3 get_legs();
 };

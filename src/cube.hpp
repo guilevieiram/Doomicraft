@@ -29,6 +29,10 @@ public:
 
     bool operator==(const cube&) const;
 
-    float top();
-    float bottom();
+    float top() const;
+    float bottom() const;
+
+
+    // debugging
+    void draw_wire(environment_structure&) const;
 };

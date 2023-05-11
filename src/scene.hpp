@@ -10,6 +10,8 @@
 #include "mob.hpp"
 #include "mob_group.hpp"
 #include "timed_gui.hpp"
+#include "billboard.hpp"
+#include "game_modes.hpp"
 
 
 
@@ -22,11 +24,6 @@ using cgp::timer_basic;
 using cgp::vec3;
 
 
-// Game modes
-enum game_modes {
-	kSurvival,
-	kCreative
-};
 
 // for loading sprites in the ImGui
 struct image_obj {
@@ -45,6 +42,8 @@ struct gui_parameters
 	bool debug = false;
 
 	int fog_depth = 24;
+
+	bool collision_box = false;
 	
 	image_obj portal_gun;
 	image_obj crosshair;

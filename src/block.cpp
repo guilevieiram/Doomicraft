@@ -61,16 +61,17 @@ block::block(block_types b_type, vec3 pos)
     position = pos;
 }
 
-void block::draw(const environment_structure& env, bool wireframe){
+void block::draw(const environment_structure& env, bool wireframe, const vec3& looking_at) const{
     block_mesh& mesh = blocks[block_type];
-    mesh.draw(env, position, render_directions, wireframe);
+    mesh.draw(env, position, render_directions, looking_at, wireframe);
 }
 
-bool block::is_being_seen(const vec3& from, const vec3& looking_at, const float& max_depth){
+bool block::is_being_seen(const vec3& from, const vec3& looking_at, const float& max_depth) const{
     vec3 block_to_player = position - from;
+    float n = 1.0f;
     return (
-        dot(normalize(looking_at), normalize(block_to_player)) >= std::cos(FIELD_OF_VIEW)
-        && norm(block_to_player) < max_depth
+        (n = norm(block_to_player)) <= max_depth
+        && dot(looking_at, (block_to_player)/n) >= cos_fov
     );
 }
 
@@ -94,4 +95,12 @@ block_types block::get_next_block(block_types b, int amount){
         }
     }
     return b;
+}
+
+bool block::is_transparent() const{
+    return block_type == leaf;
+}
+
+vec3 block::get_position() const {
+    return position;
 }

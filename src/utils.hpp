@@ -8,6 +8,7 @@ namespace utils
     // coordinate by coordinate functions
     vec3 max(vec3, vec3);
     float max(vec3);
+    float min(vec3);
     vec3 min(vec3, vec3);
     vec3 relu(vec3);
     vec3 abs(vec3);
@@ -20,7 +21,7 @@ namespace utils
     float distance(vec2, vec2);
     float distance(vec3, vec3);
 
-    vec2 standardize_direction(vec3);
+    vec3 standardize_direction(vec3);
 
     int sign(float);
     float rand(float min = 0, float max = 1);

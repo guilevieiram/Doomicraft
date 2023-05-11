@@ -66,12 +66,12 @@ void mob::take_damage(){
 bool mob::is_dead(){
     return life <= 0;
 }
+
 void mob::rotate_mesh(vec3 to){
     // mesh.model.rotation = rotation_transform::from_frame_transform({-1,0,0}, {0,1,0}, normalize(to), {0,0,1});
     mesh_head.model.rotation = rotation_transform::from_frame_transform({1,0,0}, {0,0,1}, normalize(to), {0,0,1});
     mesh_body.model.rotation = rotation_transform::from_frame_transform({1,0,0}, {0,0,1}, normalize(to), {0,0,1});
     health_bar.model.rotation = rotation_transform::from_frame_transform({1,0,0}, {0,0,1}, normalize(to), {0,0,1});
-
 }
 
 void mob::move(
@@ -87,7 +87,7 @@ void mob::move(
     float z_move = 0;
 
     // move direction to player position
-    move_direction += step * utils::standardize_direction(position_player+vec3{0.1,0.1,0.1} - position);
+    move_direction += step * utils::crop(utils::standardize_direction(position_player+vec3{0.1,0.1,0.1} - position));
     if(norm(move_direction_xy)>0.01){
         rotate_mesh({move_direction.x, move_direction.y, 0});
     }

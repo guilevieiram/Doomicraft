@@ -21,6 +21,12 @@ namespace utils
         });
     }
 
+    float min(vec3 v){
+        return std::min({
+            v.x, v.y, v.z
+        });
+    }
+
     vec3 min(vec3 u, vec3 v){
         return {
             std::min(u.x, v.x),
@@ -51,8 +57,9 @@ namespace utils
     vec3 project_plane(vec3 v){
         return mat3{{1,0,0},{0,1,0},{0,0,0}} * v;
     }
-    vec2 standardize_direction(vec3 v){
-        return crop(normalize(project_plane(v))); //TODO if v is too low, core dumped
+    vec3 standardize_direction(vec3 v){
+        if (norm(v) < 0.001) return {0, 0, 0};
+        return normalize(project_plane(v)); 
     }    
 
 

@@ -6,11 +6,12 @@ using namespace cgp;
 void scene_structure::initialize_game(){
 	main_player.start_game();
 	camera_control.activate();
+	billboard::init_billboards();
 
 	switch (game_mode){
 	case game_modes::kCreative:
 		environment.background_color = {0.5, 0.7, 1};
-		gui.fog_depth = 24;
+		gui.fog_depth = 14;
 		lists.background_creative = true;
 		break;
 
@@ -19,6 +20,14 @@ void scene_structure::initialize_game(){
 		gui.fog_depth = 10;
 		enemies = mob_group({0, 0, 20});
 		lists.background = true;
+		break;
+	
+	case game_modes::kTest:
+		environment.background_color = vec3{0, 0, 0};
+		gui.fog_depth = 16;
+		gui.creative = true;
+		gui.collision_box = true;
+		gui.debug = true;
 		break;
 	
 	default:
@@ -39,11 +48,11 @@ void scene_structure::initialize()
 
 	block::initialize();
 	terr = terrain();
-	main_player = player(camera_control, { 0, 0, 10 }, &gui.creative, &terr);
+	main_player = player(camera_control, { 0, 0, 10 }, &gui.creative, &terr, &game_mode, game_mode == game_modes::kTest ? &environment : nullptr);
 
 	// Adding portal gun
 	glfwInit();
-	utils::LoadTextureFromFile("../assets/portal_gun.png", &gui.portal_gun.image_texture, &gui.portal_gun.image_width, &gui.portal_gun.image_height);
+	// utils::LoadTextureFromFile("../assets/portal_gun.png", &gui.portal_gun.image_texture, &gui.portal_gun.image_width, &gui.portal_gun.image_height);
 	utils::LoadTextureFromFile("../assets/crosshair_green.png", &gui.crosshair.image_texture, &gui.crosshair.image_width, &gui.crosshair.image_height);
 	utils::LoadTextureFromFile("../assets/hit_crosshair.png", &gui.hit_crosshair.image_texture, &gui.hit_crosshair.image_width, &gui.hit_crosshair.image_height);
 
@@ -56,7 +65,7 @@ void scene_structure::display_frame()
 	environment.light = main_player.position + vec3{0,0,10};
 	environment.uniform_generic.uniform_int["fog_depth"] = gui.fog_depth;
 	timer.update();
-	terr.draw(environment, gui.display_wireframe, main_player.get_eyes(), main_player.looking_at(), gui.fog_depth);
+	if(gui.collision_box) main_player.draw_collision_box(environment);
 
 	switch (game_mode){
 	case game_modes::kSurvival:
@@ -69,6 +78,13 @@ void scene_structure::display_frame()
 	default:
 		break;
 	}
+
+	// drawing terrain (with transparent objs)
+	terr.draw(environment, gui.display_wireframe, main_player.get_eyes(), main_player.looking_at(), gui.fog_depth);
+
+	// player items must be on top of everything
+    glClear(GL_DEPTH_BUFFER_BIT);
+	main_player.draw(environment, gui.display_wireframe);
 }
 
 void scene_structure::end_game(){
@@ -107,6 +123,7 @@ void scene_structure::idle_frame()
 		enemies.set_level(main_player.get_level());
 		camera_control.idle_frame(environment.camera_view);
 		main_player.move(terr.get_cubes(main_player.position));
+		enemies.update_mobs(main_player.position);
 		enemies.move(terr, main_player.body.position, inputs.time_interval);
 		if(!gui.creative && enemies.check_hits_player(main_player.position)){
 			main_player.take_hit(); 
@@ -114,9 +131,15 @@ void scene_structure::idle_frame()
 		}
 		if(!gui.creative && main_player.is_dead())
 			end_game();
+
 		break;
 
 	case game_modes::kCreative:
+		camera_control.idle_frame(environment.camera_view);
+		main_player.move(terr.get_cubes(main_player.position));
+		break;
+
+	case game_modes::kTest:
 		camera_control.idle_frame(environment.camera_view);
 		main_player.move(terr.get_cubes(main_player.position));
 		break;
@@ -218,10 +241,11 @@ void scene_structure::display_gui()
 		if (gui.debug){
 			ImGui::Checkbox("Wireframe", &gui.display_wireframe);
 			ImGui::Checkbox("Creative", &gui.creative);
+			ImGui::Checkbox("Colision Box", &gui.collision_box);
 			ImGui::SliderInt("Fog Depth", &gui.fog_depth, 0, 64);
 		}
 		ImGui::Text(" ");
-		if(ImGui::Button("Exit", {gui.config_window_size.x, 40})) end_game();
+		if(ImGui::Button("Exit Game", {gui.config_window_size.x, 40})) end_game();
 		ImGui::End();
 	}
 
@@ -279,23 +303,23 @@ void scene_structure::display_gui()
 
 	
 	// Weapon
-	ImGui::Begin("Weapon", NULL, 
-		ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoDecoration
-	);
-	gui.portal_gun.image_height = std::min(window.width / 4.0f, 300.0f);
-	gui.portal_gun.image_width = std::min(window.width / 4.0f, 300.0f);
-	ImGui::SetWindowPos({
-		(float)window.width - (float)gui.portal_gun.image_width, 
-		(float)window.height - (float)gui.portal_gun.image_height
-	});
-	ImGui::SetWindowSize({
-		(float)gui.portal_gun.image_width, (float)gui.portal_gun.image_height
-	});
-	ImGui::Image(
-		(void *)(intptr_t)gui.portal_gun.image_texture, 
-		ImVec2(gui.portal_gun.image_width, gui.portal_gun.image_height)
-	);
-	ImGui::End();
+	// ImGui::Begin("Weapon", NULL, 
+	// 	ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoDecoration
+	// );
+	// gui.portal_gun.image_height = std::min(window.width / 4.0f, 300.0f);
+	// gui.portal_gun.image_width = std::min(window.width / 4.0f, 300.0f);
+	// ImGui::SetWindowPos({
+	// 	(float)window.width - (float)gui.portal_gun.image_width, 
+	// 	(float)window.height - (float)gui.portal_gun.image_height
+	// });
+	// ImGui::SetWindowSize({
+	// 	(float)gui.portal_gun.image_width, (float)gui.portal_gun.image_height
+	// });
+	// ImGui::Image(
+	// 	(void *)(intptr_t)gui.portal_gun.image_texture, 
+	// 	ImVec2(gui.portal_gun.image_width, gui.portal_gun.image_height)
+	// );
+	// ImGui::End();
 
 	// Crosshair
 	ImGui::Begin("Crosshair", NULL, 
