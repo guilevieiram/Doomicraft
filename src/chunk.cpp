@@ -42,11 +42,16 @@ void chunk::update_blocks(){
         if(!check_has_block(pos + utils::Triplet(0, 0, -1))) render_dirs.push_back(directions::kBottom);
         blk.render_directions = render_dirs;
     }
+    billboard* to_kill = nullptr;
     for (auto& bill : billboards){// dropping billboards
         if(!check_has_block(bill.get_position() + vec3{0, 0, -1})) 
             bill.update_position(bill.get_position() + vec3{0, 0, -1});
+        if(check_has_block(bill.get_position())) 
+            to_kill = &bill;
     }
 
+    if (to_kill != nullptr) std::remove(billboards.begin(), billboards.end(), *to_kill);
+    
 }
 
 int chunk::generator_function(const vec2& v){
@@ -128,7 +133,7 @@ void chunk::delete_bloc_absolute(vec3 position){
 void chunk::draw(const environment_structure& env, bool wireframe, const vec3& player_position, const vec3& player_looking_at, const float& max_depth){
     for (const auto& [pos, blk] : blocks){
         if(blk.is_being_seen(player_position, player_looking_at, max_depth))
-            blk.draw(env, wireframe, player_looking_at);
+            blk.draw(env, wireframe, player_position);
     }
 }
     
